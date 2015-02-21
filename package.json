@@ -1,0 +1,25 @@
+{
+  "name": "better-path",
+  "version": "0.1.0",
+  "description": "Better path utility then nodes standard path module",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adius/better-path"
+  },
+  "keywords": [
+    "path"
+  ],
+  "author": "Adrian Sieber",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adius/better-path/issues"
+  },
+  "homepage": "https://github.com/adius/better-path",
+  "devDependencies": {
+    "mocha": "^2.1.0"
+  }
+}
