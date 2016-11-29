@@ -1,6 +1,6 @@
 {
   "name": "@datatypes/path",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Better path module than node's native path module",
   "main": "index.js",
   "scripts": {
