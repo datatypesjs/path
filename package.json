@@ -1,10 +1,11 @@
 {
   "name": "better-path",
   "version": "0.2.0",
-  "description": "Better path utility then nodes standard path module",
+  "description": "Better path utility then node's standard path module",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test"
+    "lint": "eslint .",
+    "test": "npm run lint && mocha test"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,11 @@
   },
   "homepage": "https://github.com/adius/better-path",
   "devDependencies": {
-    "mocha": "^2.1.0"
+    "eslint": "^3.11.1",
+    "javascript-styleguide": "^1.0.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": "./node_modules/javascript-styleguide/.eslintrc.yaml"
   }
 }
