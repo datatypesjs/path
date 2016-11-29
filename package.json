@@ -4,9 +4,9 @@
   "description": "Better path module than node's native path module",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --ignore-pattern coverage .",
     "unit-tests": "node test/main.js",
-    "test": "npm run lint && npm run unit-tests",
+    "test": "npm run lint && npm run unit-tests && istanbul test test/main.js",
     "prepublish": "npm test"
   },
   "repository": {
@@ -24,6 +24,7 @@
   "homepage": "https://github.com/adius/better-path",
   "devDependencies": {
     "eslint": "^3.11.1",
+    "istanbul": "^0.4.5",
     "javascript-styleguide": "^1.0.0"
   },
   "eslintConfig": {

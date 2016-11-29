@@ -68,3 +68,9 @@ console.info(`
   Base name of file B: ${pathB.baseName}
 `)
 ```
+
+
+## Development
+
+Run `npm test --coverage` to see the current test-coverage.
+Test coverage must not decrease through future commits.
