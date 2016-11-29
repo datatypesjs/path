@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const assert = require('assert')
 const Path = require('..')
 const fileName = 'file.txt'
@@ -10,7 +11,6 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
   console.info('Create empty path instance')
   const emptyPath = new Path()
   const testFile = 'testFile'
@@ -23,7 +23,6 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
   console.info('Create path instance from object')
   const pathInstance = new Path(pathObject)
 
@@ -33,13 +32,16 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
-  console.info('Create path instance from string')
+  console.info('Create path instance from simple path string')
   const simplePath = Path.fromString(filePath)
 
   assert.strictEqual(simplePath.baseName, 'file')
   assert.strictEqual(simplePath.fileName, fileName)
   assert.strictEqual(simplePath.path, filePath)
+}
+
+{
+  console.info('Create path instance from complex path string')
 
   const complexPath = Path.fromString('some/temp/path/myfile.md.tar.gz')
 
@@ -49,8 +51,7 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
-  console.info('Change file name')
+  console.info('Supports changing the extension')
   const pathInstance = Path.fromString(filePath)
   pathInstance.extension = 'md'
 
@@ -78,7 +79,15 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
+  console.info('Supports conversion to a string')
+  const pathInstance = Path.fromString(filePath)
+  const actualSentence = `The file ${pathInstance} is important`
+  const expectedSentence = 'The file /path/to/a/file.txt is important'
+
+  assert.strictEqual(actualSentence, expectedSentence)
+}
+
+{
   console.info('Supports conversion to JSON')
   const pathInstance = Path.fromString(`${directoryPath}/file.YML`)
 
@@ -99,5 +108,4 @@ const pathObject = {
   )
 }
 
-// eslint-disable-next-line no-console
 console.info('\nAll tests passed ✔')
