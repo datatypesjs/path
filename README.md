@@ -10,13 +10,15 @@ sections of the path-string.
 │                            path                                   │
 ├──────────────────────────────────────┬────────────────────────────┤
 │             directoryPath            │      fileName              │
-├──────┬───────────┬───────────────────┼──────────┬─────────────────┤
-│      │           │                   │          │   extensions    │
-│ root │           │   directoryName   │ baseName ├─────┬───────────┤
-│      │           │                   │          │     │ extension │
-├──────┴───────────┴───────────────────┴──────────┴─────┴───────────┤
+├──────────────────┬───────────────────┼────────────────┬───────────┤
+│         *        │                   │    baseName    │ extension │
+├──────┐           │   directoryName   ├──────────┬─────┴───────────┤
+│ root │           │                   │ fileRoot │   extensions    │
+├──────┴───────────┴───────────────────┴──────────┴─────────────────┤
 │  /     home/user /       dir         /   file   . tar .   gz      │
 └───────────────────────────────────────────────────────────────────┘
+
+(* grandParentDirectory - only used internally)
 ```
 
 Addtional attributes: `fileType`, `isDotfile`, `isAbsolute`
@@ -29,14 +31,20 @@ root: /
 directoryPath: /home/user/dir
 directoryName: dir
 fileName: file.tar.gz
-baseName: file
-extensions: [tar, gz]
+baseName: file.tar
 extension: gz
-# File type is the normalized and lowercased extension (e.g. jPeg => jpg)
+fileRoot: file
+extensions: [tar, gz]
+# File type is the normalized and lowercased extension (e.g. YML => yaml)
 fileType: gz
 isDotfile: false
 isAbsolute: true
 ```
+
+Internally `root`, `grandParentDirectory`, `directoryName`, `fileRoot`,
+`extensions` and `extension` are handled as the source properties.
+This means all the other properties are derived from this source properties.
+
 
 ## Installation
 

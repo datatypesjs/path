@@ -1,11 +1,13 @@
 {
-  "name": "better-path",
+  "name": "@datatypes/path",
   "version": "0.2.0",
-  "description": "Better path utility then node's standard path module",
+  "description": "Better path module than node's native path module",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "npm run lint && mocha test"
+    "unit-tests": "node test/main.js",
+    "test": "npm run lint && npm run unit-tests",
+    "prepublish": "npm test"
   },
   "repository": {
     "type": "git",
