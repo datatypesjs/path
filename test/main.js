@@ -11,7 +11,7 @@ const pathObject = {
 }
 
 {
-  console.info('Create empty path instance')
+  console.info('Creates empty path instance')
   const emptyPath = new Path()
   const testFile = 'testFile'
 
@@ -23,7 +23,7 @@ const pathObject = {
 }
 
 {
-  console.info('Create path instance from object')
+  console.info('Creates path instance from object')
   const pathInstance = new Path(pathObject)
 
   assert.strictEqual(pathInstance.baseName, 'file')
@@ -32,7 +32,7 @@ const pathObject = {
 }
 
 {
-  console.info('Create path instance from simple path string')
+  console.info('Creates path instance from simple path string')
   const simplePath = Path.fromString(filePath)
 
   assert.strictEqual(simplePath.baseName, 'file')
@@ -41,8 +41,7 @@ const pathObject = {
 }
 
 {
-  console.info('Create path instance from complex path string')
-
+  console.info('Creates path instance from complex path string')
   const complexPath = Path.fromString('some/temp/path/myfile.md.tar.gz')
 
   assert.strictEqual(complexPath.baseName, 'myfile.md.tar')
@@ -51,7 +50,7 @@ const pathObject = {
 }
 
 {
-  console.info('Supports changing the extension')
+  console.info('Changes the extension')
   const pathInstance = Path.fromString(filePath)
   pathInstance.extension = 'md'
 
@@ -62,12 +61,34 @@ const pathObject = {
 }
 
 {
-  console.info('Supports changing all extensions')
+  console.info('Changes all extensions')
   const pathInstance = Path.fromString(filePath)
   pathInstance.extensions = ['coffee', 'md']
 
   assert.deepStrictEqual(pathInstance.extensions, ['coffee', 'md'])
   assert.strictEqual(pathInstance.extension, 'md')
+}
+
+{
+  console.info('Provides setProperty() methods for all properties')
+  const pathInstance = Path.fromString(filePath)
+
+  pathInstance
+    .setDirectoryPath('some/directory')
+    .setRoot('/')
+    .setFileRoot('the-story')
+    .setExtension('rtf')
+
+  assert.strictEqual(pathInstance.path, '/some/directory/the-story.rtf')
+
+  pathInstance
+    .setPath('somewhere/entirely/else.doc')
+    .setDirectoryName('almostEntirely')
+    .setExtensions(['md', 'epub'])
+    .setFileName('elseif.odf')
+    .setBaseName('if.txt')
+
+  assert.strictEqual(pathInstance.path, 'somewhere/almostEntirely/if.txt.odf')
 }
 
 {
@@ -79,7 +100,7 @@ const pathObject = {
 }
 
 {
-  console.info('Supports conversion to a string')
+  console.info('Converts path instance to a string')
   const pathInstance = Path.fromString(filePath)
   const actualSentence = `The file ${pathInstance} is important`
   const expectedSentence = 'The file /path/to/a/file.txt is important'
@@ -88,7 +109,7 @@ const pathObject = {
 }
 
 {
-  console.info('Supports conversion to JSON')
+  console.info('Converts path instance to JSON')
   const pathInstance = Path.fromString(`${directoryPath}/file.YML`)
 
   assert.strictEqual(

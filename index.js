@@ -64,7 +64,8 @@ module.exports = class Path {
     this._directoryName = nativePathObject.base
   }
   setDirectoryPath (directoryPath) {
-    return this.directoryPath = directoryPath
+    this.directoryPath = directoryPath
+    return this
   }
   get directoryPath () {
     return pathModule.join(
@@ -127,10 +128,11 @@ module.exports = class Path {
   set baseName (baseName) {
     this._baseName = baseName
     this._fileRoot = baseName.split('.')[0]
-    this._extensions = baseName
-      .slice(this._fileRoot.length + 1)
-      .split('.')
-      .push(this._extension)
+    const extString = baseName.slice(this.fileRoot.length + 1)
+    this._extensions = extString
+      ? extString.split('.')
+      : []
+    this._extensions.push(this.extension)
   }
   setBaseName (baseName) {
     this.baseName = baseName
@@ -160,7 +162,7 @@ module.exports = class Path {
     this._fileRoot = fileRoot
   }
   setFileRoot (fileRoot) {
-    this.fileRoot = fileRoot
+    this._fileRoot = fileRoot
     return this
   }
   get fileRoot () {
@@ -175,7 +177,7 @@ module.exports = class Path {
     this._extension = extensions.slice(-1)[0]
   }
   setExtensions (extensions) {
-    this._extensions = extensions
+    this.extensions = extensions
     return this
   }
   get extensions () {
