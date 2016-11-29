@@ -172,7 +172,7 @@ module.exports = class Path {
     this._basename = [this._fileRoot]
       .concat(extensions.slice(0, -1))
       .join('.')
-    this._extension = extensions.slice(-1)
+    this._extension = extensions.slice(-1)[0]
   }
   setExtensions (extensions) {
     this._extensions = extensions

@@ -61,7 +61,15 @@ const pathObject = {
 }
 
 {
-  // eslint-disable-next-line no-console
+  console.info('Supports changing all extensions')
+  const pathInstance = Path.fromString(filePath)
+  pathInstance.extensions = ['coffee', 'md']
+
+  assert.deepStrictEqual(pathInstance.extensions, ['coffee', 'md'])
+  assert.strictEqual(pathInstance.extension, 'md')
+}
+
+{
   console.info('Normalizes extension to generate file type')
   const pathInstance = Path.fromString(`${directoryPath}/file.YML`)
 
