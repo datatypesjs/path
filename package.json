@@ -2,12 +2,18 @@
   "name": "@datatypes/path",
   "version": "1.0.0",
   "description": "Better path module than node's native path module",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "lint": "eslint --ignore-pattern coverage .",
-    "unit-tests": "node test/main.js",
-    "test": "npm run lint && npm run unit-tests && istanbul test test/main.js",
-    "prepublish": "npm test"
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "unit-tests": "tsx test/main.ts",
+    "test": "npm run build && npm run unit-tests",
+    "prepublishOnly": "npm run clean && npm test"
   },
   "repository": {
     "type": "git",
@@ -23,12 +29,8 @@
   },
   "homepage": "https://github.com/adius/better-path",
   "devDependencies": {
-    "eslint": "^3.11.1",
-    "istanbul": "^0.4.5",
-    "javascript-styleguide": "^1.0.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "extends": "./node_modules/javascript-styleguide/.eslintrc.yaml"
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
   }
 }

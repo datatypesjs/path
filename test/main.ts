@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-const assert = require('assert')
-const Path = require('..')
+import assert from 'node:assert'
+import Path from '../src/index'
+
 const fileName = 'file.txt'
 const directoryPath = '/path/to/a'
 const filePath = `${directoryPath}/${fileName}`

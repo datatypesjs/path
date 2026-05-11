@@ -1,8 +1,8 @@
-const extensionsToType = require('./extensionsToType')
+import extensionsToType from './extensionsToType'
 
-let separator = process.platform === 'win32' ? '\\' : '/'
+let separator: string = process.platform === 'win32' ? '\\' : '/'
 
-function getRootPrefix (filePath) {
+function getRootPrefix (filePath: string): string {
   if (!filePath || filePath.length === 0) return ''
   if (separator === '\\') {
     const driveMatch = /^[a-zA-Z]:\\/.exec(filePath)
@@ -13,7 +13,7 @@ function getRootPrefix (filePath) {
   return filePath[0] === separator ? separator : ''
 }
 
-function dirname (filePath) {
+function dirname (filePath: string): string {
   const lastSep = filePath.lastIndexOf(separator)
   if (lastSep === -1) return '.'
   const root = getRootPrefix(filePath)
@@ -21,7 +21,7 @@ function dirname (filePath) {
   return filePath.slice(0, lastSep)
 }
 
-function basename (filePath, ext) {
+function basename (filePath: string, ext?: string): string {
   const lastSep = filePath.lastIndexOf(separator)
   let base = lastSep === -1 ? filePath : filePath.slice(lastSep + 1)
   if (ext && ext !== base && base.endsWith(ext)) {
@@ -30,18 +30,22 @@ function basename (filePath, ext) {
   return base
 }
 
-function extname (filePath) {
+function extname (filePath: string): string {
   const base = basename(filePath)
   const dotIndex = base.lastIndexOf('.')
   if (dotIndex <= 0) return ''
   return base.slice(dotIndex)
 }
 
-function pathIsAbsolute (filePath) {
-  return getRootPrefix(filePath).length > 0
+interface ParsedPath {
+  root: string
+  dir: string
+  base: string
+  ext: string
+  name: string
 }
 
-function parse (filePath) {
+function parse (filePath: string): ParsedPath {
   const root = getRootPrefix(filePath)
   const lastSep = filePath.lastIndexOf(separator)
   const dir = lastSep === -1
@@ -56,12 +60,14 @@ function parse (filePath) {
   return { root, dir, base, ext, name }
 }
 
-function join (...parts) {
-  const filtered = parts.filter(part => part != null && part.length > 0)
+function join (...parts: Array<string | null | undefined>): string {
+  const filtered = parts.filter(
+    (part): part is string => part != null && part.length > 0
+  )
   if (filtered.length === 0) return '.'
-  const rootPrefix = getRootPrefix(filtered[0])
+  const rootPrefix = getRootPrefix(filtered[0]!)
   const segments = filtered
-    .reduce((acc, part) => acc.concat(part.split(separator)), [])
+    .reduce<string[]>((acc, part) => acc.concat(part.split(separator)), [])
     .filter(seg => seg.length > 0 && seg !== '.')
     .filter(seg => !(separator === '\\' && /^[a-zA-Z]:$/.test(seg)))
   const body = segments.join(separator)
@@ -69,15 +75,23 @@ function join (...parts) {
   return body.length > 0 ? body : '.'
 }
 
-module.exports = class Path {
-  static get separator () {
+class Path {
+  static get separator (): string {
     return separator
   }
-  static set separator (value) {
+  static set separator (value: string) {
     separator = value
   }
 
-  constructor (pathObject) {
+  private _root?: string
+  private _grandParentDirectory?: string
+  private _directoryName?: string
+  private _baseName?: string
+  private _fileRoot?: string
+  private _extension?: string
+  private _extensions?: string[]
+
+  constructor (pathObject?: Path.PathLike) {
     const argType = typeof pathObject
     if (argType === 'undefined') {
       return
@@ -86,7 +100,7 @@ module.exports = class Path {
       throw new Error(`Argument must be an object and not "${argType}"`)
     }
 
-    const object = Object.assign({}, pathObject)
+    const object: Path.PathLike = Object.assign({}, pathObject)
 
     delete object.path
     delete object.fileName
@@ -112,37 +126,36 @@ module.exports = class Path {
     Object.assign(this, pathObject)
   }
 
-  static fromString (pathString) {
+  static fromString (pathString: string): Path {
     const pathInstance = new Path()
     pathInstance.path = pathString
     return pathInstance
   }
 
 
-  set path (pathString) {
+  set path (pathString: string) {
     this.directoryPath = dirname(pathString)
     this.fileName = basename(pathString)
   }
-  setPath (pathString) {
+  setPath (pathString: string): this {
     this.path = pathString
     return this
   }
-  get path () {
+  get path (): string {
     return join(this.directoryPath, this.fileName)
   }
 
-  set directoryPath (directoryPath) {
+  set directoryPath (directoryPath: string) {
     const nativePathObject = parse(directoryPath)
-    this._isAbsolute = pathIsAbsolute(directoryPath)
     this._root = nativePathObject.root
     this._grandParentDirectory = nativePathObject.dir
     this._directoryName = nativePathObject.base
   }
-  setDirectoryPath (directoryPath) {
+  setDirectoryPath (directoryPath: string): this {
     this.directoryPath = directoryPath
     return this
   }
-  get directoryPath () {
+  get directoryPath (): string {
     return join(
       this.root,
       this._grandParentDirectory || '',
@@ -150,30 +163,29 @@ module.exports = class Path {
     )
   }
 
-  set root (root) {
+  set root (root: string) {
     this._root = root
   }
-  setRoot (root) {
+  setRoot (root: string): this {
     this._root = root
     return this
   }
-  get root () {
+  get root (): string {
     return this._root || ''
   }
 
-  set directoryName (directoryName) {
+  set directoryName (directoryName: string) {
     this._directoryName = directoryName
   }
-  setDirectoryName (directoryName) {
+  setDirectoryName (directoryName: string): this {
     this._directoryName = directoryName
     return this
   }
-  get directoryName () {
+  get directoryName (): string {
     return this._directoryName || ''
   }
 
-  set fileName (fileName) {
-    this._isDotfile = fileName[0] === '.'
+  set fileName (fileName: string) {
     this._extension = extname(fileName)
       .slice(1)
     this._baseName = basename(
@@ -183,14 +195,14 @@ module.exports = class Path {
 
     this._fileRoot = this._baseName.split('.')[0]
     this._extensions = fileName
-      .slice(this._fileRoot.length + 1)
+      .slice(this._fileRoot!.length + 1)
       .split('.')
   }
-  setFileName (fileName) {
+  setFileName (fileName: string): this {
     this.fileName = fileName
     return this
   }
-  get fileName () {
+  get fileName (): string {
     if (this.fileRoot) {
       return [this.fileRoot]
         .concat(this.extensions)
@@ -199,7 +211,7 @@ module.exports = class Path {
     return [this.baseName, this.extension].join('.')
   }
 
-  set baseName (baseName) {
+  set baseName (baseName: string) {
     this._baseName = baseName
     this._fileRoot = baseName.split('.')[0]
     const extString = baseName.slice(this.fileRoot.length + 1)
@@ -208,76 +220,109 @@ module.exports = class Path {
       : []
     this._extensions.push(this.extension)
   }
-  setBaseName (baseName) {
+  setBaseName (baseName: string): this {
     this.baseName = baseName
     return this
   }
-  get baseName () {
+  get baseName (): string {
     return [this.fileRoot]
       .concat(this.extensions.slice(0, -1))
       .join('.')
   }
 
-  set extension (extension) {
+  set extension (extension: string) {
     this._extension = extension
     if (Array.isArray(this._extensions)) this._extensions.pop()
     else this._extensions = []
     this._extensions.push(extension)
   }
-  setExtension (extension) {
+  setExtension (extension: string): this {
     this.extension = extension
     return this
   }
-  get extension () {
+  get extension (): string {
     return this._extension || ''
   }
 
-  set fileRoot (fileRoot) {
+  set fileRoot (fileRoot: string) {
     this._fileRoot = fileRoot
   }
-  setFileRoot (fileRoot) {
+  setFileRoot (fileRoot: string): this {
     this._fileRoot = fileRoot
     return this
   }
-  get fileRoot () {
+  get fileRoot (): string {
     return this._fileRoot || ''
   }
 
-  set extensions (extensions) {
+  set extensions (extensions: string[]) {
     this._extensions = extensions
-    this._basename = [this._fileRoot]
+    this._baseName = [this._fileRoot]
       .concat(extensions.slice(0, -1))
       .join('.')
     this._extension = extensions.slice(-1)[0]
   }
-  setExtensions (extensions) {
+  setExtensions (extensions: string[]): this {
     this.extensions = extensions
     return this
   }
-  get extensions () {
+  get extensions (): string[] {
     return this._extensions || []
   }
 
-  get fileType () {
+  get fileType (): string | null {
     return extensionsToType(this.extensions)
   }
 
-  toString () {
+  toString (): string {
     return this.path
   }
 
-  get toObject () {
+  get toObject (): Path.PathObject {
     const {
       path, root, directoryPath, directoryName, fileName, baseName,
-      fileRoot, extensions, extension, fileType, isDotfile, isAbsolute,
+      fileRoot, extensions, extension, fileType,
     } = this
 
     return {
       path, root, directoryPath, directoryName, fileName, baseName,
-      fileRoot, extensions, extension, fileType, isDotfile, isAbsolute,
+      fileRoot, extensions, extension, fileType,
+      isDotfile: (this as { isDotfile?: boolean }).isDotfile,
+      isAbsolute: (this as { isAbsolute?: boolean }).isAbsolute,
     }
   }
-  toJSON () {
+  toJSON (): Path.PathObject {
     return this.toObject
   }
 }
+
+namespace Path {
+  export interface PathLike {
+    path?: string
+    root?: string
+    directoryPath?: string
+    directoryName?: string
+    fileName?: string
+    baseName?: string
+    fileRoot?: string
+    extensions?: string[]
+    extension?: string
+  }
+
+  export interface PathObject {
+    path: string
+    root: string
+    directoryPath: string
+    directoryName: string
+    fileName: string
+    baseName: string
+    fileRoot: string
+    extensions: string[]
+    extension: string
+    fileType: string | null
+    isDotfile: boolean | undefined
+    isAbsolute: boolean | undefined
+  }
+}
+
+export = Path
