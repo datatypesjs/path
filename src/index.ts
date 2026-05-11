@@ -90,6 +90,7 @@ class Path {
   private _fileRoot?: string
   private _extension?: string
   private _extensions?: string[]
+  private _isDotfile?: boolean
 
   constructor (pathObject?: Path.PathLike) {
     const argType = typeof pathObject
@@ -186,6 +187,7 @@ class Path {
   }
 
   set fileName (fileName: string) {
+    this._isDotfile = fileName[0] === '.'
     this._extension = extname(fileName)
       .slice(1)
     this._baseName = basename(
@@ -274,6 +276,14 @@ class Path {
     return extensionsToType(this.extensions)
   }
 
+  get isDotfile (): boolean {
+    return this._isDotfile ?? false
+  }
+
+  get isAbsolute (): boolean {
+    return this.root.length > 0
+  }
+
   toString (): string {
     return this.path
   }
@@ -281,14 +291,12 @@ class Path {
   get toObject (): Path.PathObject {
     const {
       path, root, directoryPath, directoryName, fileName, baseName,
-      fileRoot, extensions, extension, fileType,
+      fileRoot, extensions, extension, fileType, isDotfile, isAbsolute,
     } = this
 
     return {
       path, root, directoryPath, directoryName, fileName, baseName,
-      fileRoot, extensions, extension, fileType,
-      isDotfile: (this as { isDotfile?: boolean }).isDotfile,
-      isAbsolute: (this as { isAbsolute?: boolean }).isAbsolute,
+      fileRoot, extensions, extension, fileType, isDotfile, isAbsolute,
     }
   }
   toJSON (): Path.PathObject {
@@ -320,8 +328,8 @@ namespace Path {
     extensions: string[]
     extension: string
     fileType: string | null
-    isDotfile: boolean | undefined
-    isAbsolute: boolean | undefined
+    isDotfile: boolean
+    isAbsolute: boolean
   }
 }
 

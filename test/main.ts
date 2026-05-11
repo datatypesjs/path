@@ -126,8 +126,29 @@ const pathObject = {
       extensions: [ 'YML' ],
       extension: 'YML',
       fileType: 'yaml',
+      isDotfile: false,
+      isAbsolute: true,
     })
   )
+}
+
+{
+  console.info('Exposes isDotfile and isAbsolute')
+  const absolute = Path.fromString('/etc/hosts')
+  assert.strictEqual(absolute.isAbsolute, true)
+  assert.strictEqual(absolute.isDotfile, false)
+
+  const relative = Path.fromString('docs/readme.md')
+  assert.strictEqual(relative.isAbsolute, false)
+  assert.strictEqual(relative.isDotfile, false)
+
+  const dotfile = Path.fromString('/home/user/.gitignore')
+  assert.strictEqual(dotfile.isAbsolute, true)
+  assert.strictEqual(dotfile.isDotfile, true)
+
+  const empty = new Path()
+  assert.strictEqual(empty.isAbsolute, false)
+  assert.strictEqual(empty.isDotfile, false)
 }
 
 {
