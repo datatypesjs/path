@@ -1,15 +1,29 @@
 const extensionsToType = require('./extensionsToType')
 
+let separator = process.platform === 'win32' ? '\\' : '/'
+
+function getRootPrefix (filePath) {
+  if (!filePath || filePath.length === 0) return ''
+  if (separator === '\\') {
+    const driveMatch = /^[a-zA-Z]:\\/.exec(filePath)
+    if (driveMatch) return driveMatch[0]
+    if (filePath[0] === '\\') return '\\'
+    return ''
+  }
+  return filePath[0] === separator ? separator : ''
+}
+
 function dirname (filePath) {
-  const lastSlash = filePath.lastIndexOf('/')
-  if (lastSlash === -1) return '.'
-  if (lastSlash === 0) return '/'
-  return filePath.slice(0, lastSlash)
+  const lastSep = filePath.lastIndexOf(separator)
+  if (lastSep === -1) return '.'
+  const root = getRootPrefix(filePath)
+  if (lastSep < root.length) return root
+  return filePath.slice(0, lastSep)
 }
 
 function basename (filePath, ext) {
-  const lastSlash = filePath.lastIndexOf('/')
-  let base = lastSlash === -1 ? filePath : filePath.slice(lastSlash + 1)
+  const lastSep = filePath.lastIndexOf(separator)
+  let base = lastSep === -1 ? filePath : filePath.slice(lastSep + 1)
   if (ext && ext !== base && base.endsWith(ext)) {
     base = base.slice(0, base.length - ext.length)
   }
@@ -24,18 +38,18 @@ function extname (filePath) {
 }
 
 function pathIsAbsolute (filePath) {
-  return filePath.length > 0 && filePath[0] === '/'
+  return getRootPrefix(filePath).length > 0
 }
 
 function parse (filePath) {
-  const root = pathIsAbsolute(filePath) ? '/' : ''
-  const lastSlash = filePath.lastIndexOf('/')
-  const dir = lastSlash === -1
+  const root = getRootPrefix(filePath)
+  const lastSep = filePath.lastIndexOf(separator)
+  const dir = lastSep === -1
     ? ''
-    : lastSlash === 0
-      ? '/'
-      : filePath.slice(0, lastSlash)
-  const base = lastSlash === -1 ? filePath : filePath.slice(lastSlash + 1)
+    : lastSep < root.length
+      ? root
+      : filePath.slice(0, lastSep)
+  const base = lastSep === -1 ? filePath : filePath.slice(lastSep + 1)
   const dotIndex = base.lastIndexOf('.')
   const ext = dotIndex <= 0 ? '' : base.slice(dotIndex)
   const name = ext ? base.slice(0, base.length - ext.length) : base
@@ -43,19 +57,26 @@ function parse (filePath) {
 }
 
 function join (...parts) {
-  const filtered = parts.filter(part => part.length > 0)
+  const filtered = parts.filter(part => part != null && part.length > 0)
   if (filtered.length === 0) return '.'
-  const joined = filtered.join('/')
-  const isAbs = joined[0] === '/'
-  const segments = joined
-    .split('/')
+  const rootPrefix = getRootPrefix(filtered[0])
+  const segments = filtered
+    .reduce((acc, part) => acc.concat(part.split(separator)), [])
     .filter(seg => seg.length > 0 && seg !== '.')
-  const result = segments.join('/')
-  if (isAbs) return '/' + result
-  return result.length > 0 ? result : '.'
+    .filter(seg => !(separator === '\\' && /^[a-zA-Z]:$/.test(seg)))
+  const body = segments.join(separator)
+  if (rootPrefix) return rootPrefix + body
+  return body.length > 0 ? body : '.'
 }
 
 module.exports = class Path {
+  static get separator () {
+    return separator
+  }
+  static set separator (value) {
+    separator = value
+  }
+
   constructor (pathObject) {
     const argType = typeof pathObject
     if (argType === 'undefined') {

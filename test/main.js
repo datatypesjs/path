@@ -129,4 +129,47 @@ const pathObject = {
   )
 }
 
+{
+  console.info('Exposes platform-appropriate separator')
+  const expected = process.platform === 'win32' ? '\\' : '/'
+  assert.strictEqual(Path.separator, expected)
+}
+
+{
+  console.info('Parses Windows-style paths when separator is "\\"')
+  const original = Path.separator
+  try {
+    Path.separator = '\\'
+    const winPath = Path.fromString('C:\\Users\\alice\\notes.md')
+
+    assert.strictEqual(winPath.root, 'C:\\')
+    assert.strictEqual(winPath.directoryPath, 'C:\\Users\\alice')
+    assert.strictEqual(winPath.directoryName, 'alice')
+    assert.strictEqual(winPath.fileName, 'notes.md')
+    assert.strictEqual(winPath.baseName, 'notes')
+    assert.strictEqual(winPath.extension, 'md')
+    assert.strictEqual(winPath.path, 'C:\\Users\\alice\\notes.md')
+  }
+  finally {
+    Path.separator = original
+  }
+}
+
+{
+  console.info('Treats relative Windows-style paths correctly')
+  const original = Path.separator
+  try {
+    Path.separator = '\\'
+    const winPath = Path.fromString('docs\\readme.txt')
+
+    assert.strictEqual(winPath.root, '')
+    assert.strictEqual(winPath.directoryName, 'docs')
+    assert.strictEqual(winPath.fileName, 'readme.txt')
+    assert.strictEqual(winPath.path, 'docs\\readme.txt')
+  }
+  finally {
+    Path.separator = original
+  }
+}
+
 console.info('\nAll tests passed ✔')
